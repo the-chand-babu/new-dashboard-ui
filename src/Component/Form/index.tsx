@@ -21,11 +21,14 @@ import "./style.scss";
 import Image from "next/image";
 
 const FormsDetails = () => {
-  const [progress, setProgress] = useState(40);
+  const [progress, setProgress] = useState<number>(40);
   const [images, setImages] = useState<string[]>([]);
-  const [isUrlFieldShow, setIsUrlFieldShow] = useState(false);
-  const [isReraVisible, setIsReraVisible] = useState("yes");
-  const [checkList, setCheckList] = useState(checkBoxData);
+  const [isUrlFieldShow, setIsUrlFieldShow] = useState<boolean>(false);
+  const [isReraVisible, setIsReraVisible] = useState<string>("yes");
+  const [checkList, setCheckList] =
+    useState<{ label: string; value: string; isChecked: boolean }[]>(
+      checkBoxData
+    );
 
   const handleUploadImage = () => {
     const input = document.createElement("input");
@@ -34,12 +37,12 @@ const FormsDetails = () => {
     input.click();
     input.onchange = (event) => {
       const e = event as unknown as ChangeEvent<HTMLInputElement>;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
-      const files: any = e.target.files;
-      const fileUrl = URL.createObjectURL(files[0]);
-      setImages((prev) => [...prev, fileUrl]);
-      console.log(setProgress);
+      const files = e.target.files;
+      if (files) {
+        const fileUrl = URL.createObjectURL(files[0]);
+        setImages((prev) => [...prev, fileUrl]);
+        console.log(setProgress);
+      }
     };
   };
 
@@ -74,42 +77,33 @@ const FormsDetails = () => {
       <div className="checkbox-container-wrapper">
         {checkList?.map(
           (
-            item: { label: string; isChecked: boolean; value: string },
-            index
-          ) => {
-            return (
-              <div
-                style={{ display: "flex", alignItems: "center" }}
-                key={index}
+            item: { label: string; value: string; isChecked: boolean },
+            index: number
+          ) => (
+            <div style={{ display: "flex", alignItems: "center" }} key={index}>
+              <Checkbox.Root
+                className="CheckboxRoot"
+                id={`checkbox-${index}`}
+                checked={item.isChecked}
+                onCheckedChange={(value: boolean) => {
+                  setCheckList((prev) =>
+                    prev.map((check) =>
+                      check.value === item.value
+                        ? { ...check, isChecked: value }
+                        : check
+                    )
+                  );
+                }}
               >
-                <Checkbox.Root
-                  className="CheckboxRoot"
-                  id="c1"
-                  checked={item.isChecked}
-                  onChange={(value) => {
-                    console.log("handle change", value);
-                  }}
-                  onCheckedChange={(value) => {
-                    const isChecked = Boolean(value); // Convert value to boolean
-                    setCheckList((prev) =>
-                      prev.map((check) =>
-                        check.value === item.value
-                          ? { ...check, isChecked }
-                          : check
-                      )
-                    );
-                  }}
-                >
-                  <Checkbox.Indicator className="CheckboxIndicator">
-                    <CheckIcon style={{ height: "18px", width: "18px" }} />
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-                <label className="Label" htmlFor="c1">
-                  {item.label}
-                </label>
-              </div>
-            );
-          }
+                <Checkbox.Indicator className="CheckboxIndicator">
+                  <CheckIcon style={{ height: "18px", width: "18px" }} />
+                </Checkbox.Indicator>
+              </Checkbox.Root>
+              <label className="Label" htmlFor={`checkbox-${index}`}>
+                {item.label}
+              </label>
+            </div>
+          )
         )}
       </div>
 
@@ -119,45 +113,43 @@ const FormsDetails = () => {
           Click or drag image here to upload
         </div>
         <div className="image-prev-wrapper">
-          {images?.map((image) => {
-            return (
-              <Card key={image} className="image-card">
-                <div
-                  className="close-btn"
-                  onClick={() =>
-                    setImages((prev) => prev.filter((item) => item !== image))
-                  }
-                >
-                  x
-                </div>
-                <Image
-                  className="image"
-                  src={image}
-                  alt={image}
-                  height={200}
-                  width={200}
+          {images?.map((image: string) => (
+            <Card key={image} className="image-card">
+              <div
+                className="close-btn"
+                onClick={() =>
+                  setImages((prev) => prev.filter((item) => item !== image))
+                }
+              >
+                x
+              </div>
+              <Image
+                className="image"
+                src={image}
+                alt={image}
+                height={200}
+                width={200}
+              />
+              <div className="description-wrapper">
+                <p className="text">Description</p>
+                <p className="text">set Primary</p>
+              </div>
+              <CardFooter className="footer-wrapper">
+                <Input
+                  type="text"
+                  placeholder="Add label"
+                  className="input-field"
                 />
-                <div className="description-wrapper">
-                  <p className="text">Description</p>
-                  <p className="text">set Primary</p>
-                </div>
-                <CardFooter className="footer-wrapper">
-                  <Input
-                    type="text"
-                    placeholder="Add label"
-                    className="input-field"
-                  />
-                  <Switch.Root className="SwitchRoot" id="airplane-mode">
-                    <Switch.Thumb className="SwitchThumb" />
-                  </Switch.Root>
-                </CardFooter>
-              </Card>
-            );
-          })}
+                <Switch.Root className="SwitchRoot" id="airplane-mode">
+                  <Switch.Thumb className="SwitchThumb" />
+                </Switch.Root>
+              </CardFooter>
+            </Card>
+          ))}
         </div>
 
         <div className="url-wrapper">
-          {isUrlFieldShow ? (
+          {isUrlFieldShow && (
             <div className="input-url-wrapper">
               <p className="text">YouTube URLs</p>
               <Input
@@ -166,7 +158,7 @@ const FormsDetails = () => {
                 placeholder="https://www.yutube.com/watch?v="
               />
             </div>
-          ) : null}
+          )}
           <Button
             className="add-another-url-btn"
             onClick={() => setIsUrlFieldShow((prev) => !prev)}
@@ -182,7 +174,7 @@ const FormsDetails = () => {
             className="RadioGroupRoot"
             defaultValue={isReraVisible}
             aria-label="View density"
-            onValueChange={(value) => {
+            onValueChange={(value: string) => {
               setIsReraVisible(value);
             }}
           >
@@ -206,8 +198,7 @@ const FormsDetails = () => {
           </RadioGroup.Root>
         </div>
 
-        {/* rera number */}
-        {isReraVisible === "yes" ? (
+        {isReraVisible === "yes" && (
           <div className="rera-number">
             <p className="rera-number-text">Rera Number(s)</p>
             <Input
@@ -219,9 +210,8 @@ const FormsDetails = () => {
               Add another Rera
             </Button>
           </div>
-        ) : null}
+        )}
 
-        {/* address  card*/}
         <div className="address-card">
           <div className="addres-card-content-wrapper">
             <div className="content-box">
@@ -248,21 +238,15 @@ const FormsDetails = () => {
                     </Select.ScrollUpButton>
                     <Select.Viewport className="SelectViewport">
                       <Select.Group>
-                        <SelectItem style={{ outline: "none" }} value="apple">
-                          Park
-                        </SelectItem>
-                        <SelectItem style={{ outline: "none" }} value="banana">
-                          Kundalhalli Gate
-                        </SelectItem>
+                        <SelectItem value="apple">Park</SelectItem>
+                        <SelectItem value="banana">Kundalhalli Gate</SelectItem>
                         <SelectItem
-                          style={{ outline: "none" }}
+                          // style={{ outline: "none" }}
                           value="blueberry"
                         >
                           D-Mart
                         </SelectItem>
-                        <SelectItem style={{ outline: "none" }} value="grapes">
-                          Smart bazar
-                        </SelectItem>
+                        <SelectItem value="grapes">Smart bazar</SelectItem>
                       </Select.Group>
                     </Select.Viewport>
                     <Select.ScrollDownButton className="SelectScrollButton">
@@ -289,7 +273,7 @@ const FormsDetails = () => {
               <Input className="latitude" placeholder="18.14.133.131.2" />
             </div>
             <div className="map-location-box">
-              <p>Longitute</p>
+              <p>Longitude</p>
               <div className="map-icon-box">
                 <Input className="latitude" placeholder="18.14.133.131.2" />
                 <Modal />
@@ -316,29 +300,26 @@ const FormsDetails = () => {
 };
 
 export default FormsDetails;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 
-const SelectItem = React.forwardRef(
-  ({ children, className, ...props }: any, forwardedRef) => {
-    return (
-      <Select.Item
-        className={classnames("SelectItem", className)}
-        {...props}
-        ref={forwardedRef}
-      >
-        <Select.ItemText>{children}</Select.ItemText>
-        <Select.ItemIndicator className="SelectItemIndicator">
-          <CheckIcon />
-        </Select.ItemIndicator>
-      </Select.Item>
-    );
-  }
-);
+const SelectItem = React.forwardRef<
+  HTMLDivElement,
+  { children: React.ReactNode; className?: string; value: string }
+>(({ children, className, ...props }, forwardedRef) => {
+  return (
+    <Select.Item
+      className={classnames("SelectItem", className)}
+      {...props}
+      ref={forwardedRef}
+    >
+      <Select.ItemText>{children}</Select.ItemText>
+      <Select.ItemIndicator className="SelectItemIndicator">
+        <CheckIcon />
+      </Select.ItemIndicator>
+    </Select.Item>
+  );
+});
 
-// Assign a display name to the component
 SelectItem.displayName = "SelectItem";
-
-// map icon
 
 const MapPinIcon: React.FC = () => {
   return (
@@ -370,7 +351,7 @@ const styles = {
 };
 
 const Modal = () => {
-  const [isMapOpen, setIsMapOpen] = useState(false);
+  const [isMapOpen, setIsMapOpen] = useState<boolean>(false);
 
   return (
     <Dialog.Root
@@ -392,7 +373,6 @@ const Modal = () => {
               width="450"
               height="400"
               style={{ border: 0 }}
-              // allowFullScreen=""
               loading="lazy"
             ></iframe>
             <Button className="save-btn" onClick={() => setIsMapOpen(false)}>
