@@ -1,0 +1,23 @@
+#header-wrapper {
+  width: 97%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  background-color: rgb(231, 237, 248);
+
+  padding: 10px 20px;
+  margin: 0;
+  r p {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  button {
+    padding: 10px 20px;
+    background-color: rgb(79, 137, 225);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+  }
+}
