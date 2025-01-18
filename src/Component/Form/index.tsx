@@ -34,6 +34,7 @@ const FormsDetails = () => {
     input.click();
     input.onchange = (event) => {
       const e = event as unknown as ChangeEvent<HTMLInputElement>;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const files: any = e.target.files;
       const fileUrl = URL.createObjectURL(files[0]);
       setImages((prev) => [...prev, fileUrl]);
@@ -316,6 +317,7 @@ const FormsDetails = () => {
 export default FormsDetails;
 
 const SelectItem = React.forwardRef(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ({ children, className, ...props }: any, forwardedRef) => {
     return (
       <Select.Item
